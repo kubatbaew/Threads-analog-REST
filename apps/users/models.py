@@ -6,6 +6,9 @@ from apps.users.services import validate_size_image, get_path_avatar
 
 
 class User(AbstractUser):
+    """ Модель Пользователя
+    """
+    
     first_name = None
     last_name = None
     
@@ -20,24 +23,33 @@ class User(AbstractUser):
         max_length=100,
         null=True,
         blank=True,
+        help_text="Отображаемое имя пользователя.",
     )
     email = models.EmailField(
         max_length=256,
-        unique=True
+        unique=True,
+        help_text="Адрес электронной почты пользователя."
     )
     bio = models.TextField(
         max_length=200,
         null=True,
         blank=True,
+        help_text="Краткая биография пользователя."
     )
     link = models.URLField(
         max_length=256,
         null=True,
         blank=True,
+        help_text="Ссылка пользователя."
     )
     private_profile = models.BooleanField(
         default=False,
+        help_text="Профиль пользователя приватный или нет."
     )
     
     def __str__(self):
-        return f"{self.username}"    
+        return f"{self.username}"
+    
+    class Meta:
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
