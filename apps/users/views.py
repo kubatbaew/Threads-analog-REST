@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
-from rest_framework import permissions, response, viewsets
+from rest_framework import permissions, response, viewsets, decorators
 
 from apps.users.serializers import (UserCreateSerializer,
-                                    UserPrivateSerializer, UserSerializer)
+                                    UserPrivateSerializer, UserSerializer, UserChangePasswordSerializer)
 from utils.permissions import IsOwner
 
 User = get_user_model()
@@ -16,12 +16,32 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.AllowAny]
     
+    
+    @decorators.action(methods=['PUT', 'PATCH'], detail=True)
+    def change_password(self, request, pk=None):
+        """ Новый действие для изменения пароля
+        """
+        
+        user = self.get_object()
+        serializer = self.get_serializer(user, data=request.data)
+        
+        serializer.is_valid(raise_exception=True)
+        new_password = serializer.validated_data['new_password']
+        
+        user.set_password(new_password)
+        serializer.save()
+        
+        return response.Response({'message': 'Password updated successfully.'})
+    
+    
     def get_serializer_class(self):
         """ Получение класса сериализатора
         """
         
         if self.action in ('create', ):
             return UserCreateSerializer
+        if self.action == 'change_password':
+            return UserChangePasswordSerializer
         return UserSerializer
         
 
@@ -29,7 +49,7 @@ class UserViewSet(viewsets.ModelViewSet):
         """ Получение классов разрешений
         """
         
-        if self.action in ('list', 'update', 'destroy', 'partial_update'):
+        if self.action in ('list', 'update', 'destroy', 'partial_update', 'change_password'):
             return [IsOwner()]
         return [permissions.AllowAny()]
     
