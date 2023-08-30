@@ -1,8 +1,7 @@
 from django.contrib.auth import get_user_model
-from rest_framework import permissions, response, viewsets, decorators
+from rest_framework import decorators, permissions, response, viewsets
 
-from apps.users.serializers import (UserCreateSerializer,
-                                    UserPrivateSerializer, UserSerializer, UserChangePasswordSerializer)
+from apps.users.serializers import *
 from utils.permissions import IsOwner
 
 User = get_user_model()
@@ -19,7 +18,14 @@ class UserViewSet(viewsets.ModelViewSet):
     
     @decorators.action(methods=['PUT', 'PATCH'], detail=True)
     def change_password(self, request, pk=None):
-        """ Новый действие для изменения пароля
+        """Изменение пароля пользователя.
+
+        Args:
+            request (Request): Запрос, содержащий новый пароль.
+            pk (int): Идентификатор пользователя (из параметра URL).
+
+        Returns:
+            Response: Ответ с сообщением об успешном обновлении пароля.
         """
         
         user = self.get_object()
